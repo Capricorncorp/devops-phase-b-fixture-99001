@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "steps": [
+    { "name": "fixture-syntax", "run": "node --check server.cjs", "timeout": 60 }
+  ],
+  "image": { "name": "phase-b-app-1", "builder": "dockerfile", "dockerfile": "Dockerfile", "cache": true },
+  "deploy": {
+    "provider": "swarm",
+    "target": { "serviceName": "phase-b-app-1", "replicas": 1, "ingressHost": "synthetic.example.test" }
+  }
+}
