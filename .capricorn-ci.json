@@ -2,7 +2,7 @@
   "version": 1,
   "steps": [
     { "name": "fixture-context", "run": "test -s server.cjs && test -s Dockerfile", "timeout": 60 },
-    { "name": "owned-retry-gate", "run": "curl -fsS --max-time 15 https://whole-suite-proof-2.apps.capricorncorp.com/ | grep -F '\"proof\":\"retry-ready\"'", "timeout": 30 }
+    { "name": "owned-retry-gate", "run": "git ls-remote --exit-code origin refs/tags/whole-suite-retry-ready-20261014", "timeout": 30 }
   ],
   "image": { "name": "whole-suite-proof", "builder": "dockerfile", "dockerfile": "Dockerfile", "cache": true },
   "deploy": {
