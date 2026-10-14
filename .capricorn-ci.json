@@ -1,19 +1,18 @@
 {
   "version": 1,
   "steps": [
-    { "name": "fixture-context", "run": "test -s server.cjs && test -s Dockerfile", "timeout": 60 },
-    { "name": "owned-retry-gate", "run": "git ls-remote --exit-code origin refs/tags/whole-suite-retry-ready-20261014", "timeout": 30 }
+    { "name": "fixture-context", "run": "test -s server.cjs && test -s Dockerfile", "timeout": 60 }
   ],
-  "image": { "name": "whole-suite-proof", "builder": "dockerfile", "dockerfile": "Dockerfile", "cache": true },
   "deploy": {
     "provider": "swarm",
     "target": {
-      "serviceName": "whole-suite-proof",
+      "serviceName": "whole-suite-target",
+      "image": "10.11.99.140:5000/tenant-2/whole-suite-proof:main@sha256:52cfc8f9b486cf8ea2a56d91dfda25474fdb7132237ae37f6c475a3ab971543c",
       "replicas": 1,
-      "ingressHost": "whole-suite-proof-2.apps.capricorncorp.com",
-      "limitCpu": "0.5",
-      "limitMemory": "128M",
-      "env": { "PORT": "3000", "ACCEPTANCE_VERSION": "20261014-v1" }
+      "ingressHost": "whole-suite-target-2.apps.capricorncorp.com",
+      "limitCpu": "0.25",
+      "limitMemory": "64M",
+      "env": { "PORT": "3000", "ACCEPTANCE_VERSION": "20261014-promotion-target" }
     }
   }
 }
