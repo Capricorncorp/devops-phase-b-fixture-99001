@@ -1,0 +1,30 @@
+version: 1
+matrix:
+  FLAVOR: [alpha, beta]
+stages:
+  - id: verify
+    jobs:
+      consume:
+        needs: [produce]
+        steps:
+          - name: consume-exact-variant
+            run: test "$(cat generated.txt)" = "$CI_MATRIX_FLAVOR" && printf 'G03_CONSUMED_%s\n' "$CI_MATRIX_FLAVOR"
+            timeout: 30
+      produce:
+        steps:
+          - name: bounded-overlap-proof
+            run: printf 'G04_START_%s_%s\n' "$CI_MATRIX_FLAVOR" "$(date +%s)"; sleep 6; printf '%s' "$CI_MATRIX_FLAVOR" > generated.txt; printf 'G04_END_%s_%s\n' "$CI_MATRIX_FLAVOR" "$(date +%s)"
+            timeout: 30
+  - id: package
+    jobs:
+      package:
+        needs: [consume]
+        steps:
+          - name: retained-docker-context
+            run: test -s Dockerfile && test -s server.cjs && test -s generated.txt && printf 'G03_PACKAGED_%s\n' "$CI_MATRIX_FLAVOR"
+            timeout: 30
+image:
+  name: g03-g04-native-proof-20261017
+  builder: dockerfile
+  dockerfile: Dockerfile
+  cache: true
