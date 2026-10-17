@@ -1,34 +1,61 @@
 version: 1
+matrix:
+  FLAVOR:
+    - alpha
+    - beta
 library:
   actions:
     prepareProof:
       steps:
         - name: prepare-declared-output
-          run: mkdir -p dist && printf '%s\n' 'Capricorncorp DevOps declared artifact proof 2026-10-17' > dist/proof.txt
+          run: >-
+            mkdir -p dist && printf 'Capricorncorp DevOps matrix artifact proof %s\n'
+            "$CI_MATRIX_FLAVOR" > dist/proof.txt
           timeout: 30
     inspectProof:
       steps:
         - name: verify-reused-action
-          run: test "$(cat dist/proof.txt)" = 'Capricorncorp DevOps declared artifact proof 2026-10-17' && tar -tzf dist/proof.tar.gz && printf '%s\n' 'G26 reusable action executed with G05 exact file bytes'
+          run: >-
+            test "$(cat dist/proof.txt)" = "Capricorncorp DevOps matrix artifact proof
+            $CI_MATRIX_FLAVOR" && tar -tzf dist/proof.tar.gz && printf 'G26_REUSED_ACTION_%s\n'
+            "$CI_MATRIX_FLAVOR"
+          timeout: 30
+    customerProof:
+      steps:
+        - name: customer-proof
+          run: printf '%s\n' 'G26 customer action v2'
           timeout: 30
   jobs:
     makeBundle:
       steps:
         - uses: prepareProof
         - name: package-declared-output
-          run: tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -czf dist/proof.tar.gz -C dist proof.txt
+          run: >-
+            tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -czf dist/proof.tar.gz -C
+            dist proof.txt
+          timeout: 30
+    customerJob:
+      steps:
+        - uses: customerProof
+        - name: template-proof
+          run: printf '%s\n' 'G26 customer job template v2'
           timeout: 30
 jobs:
   produce:
     template: makeBundle
   inspectFirst:
-    needs: [produce]
+    needs:
+      - produce
     steps:
       - uses: inspectProof
   inspectSecond:
-    needs: [inspectFirst]
+    needs:
+      - inspectFirst
     steps:
       - uses: inspectProof
+      - uses: customerProof
+  customerProofJob:
+    template: customerJob
 artifacts:
   - kind: file
     name: delivery-proof.txt
