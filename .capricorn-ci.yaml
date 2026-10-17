@@ -64,16 +64,16 @@ artifacts:
     name: delivery-proof.tar.gz
     path: dist/proof.tar.gz
 image:
-  name: whole-suite-proof
+  name: whole-suite-proof-g20-20261017
   builder: dockerfile
   dockerfile: Dockerfile
   cache: true
 deploy:
   provider: swarm
   target:
-    serviceName: whole-suite-proof
+    serviceName: whole-suite-proof-g20-20261017
     replicas: 1
-    ingressHost: whole-suite-proof-2.apps.capricorncorp.com
+    ingressHost: whole-suite-proof-g20-20261017-2.apps.capricorncorp.com
     limitCpu: '0.25'
     limitMemory: 128m
     env:
