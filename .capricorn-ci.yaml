@@ -1,7 +1,7 @@
 version: 1
 steps:
   - name: fixture-build
-    run: test -f server.cjs && printf 'G25_PUBLICATION_ALLOWED_ONLY_AFTER_ALL_GATES\n'
+    run: test -f server.cjs && test -f blocked.cjs && printf 'G25_SAST_MUST_BLOCK_PUBLICATION_AND_CD\n'
     timeout: 30
 securityGates:
   sast:
@@ -15,18 +15,18 @@ securityGates:
     port: 3000
     timeout: 600
 image:
-  name: whole-suite-proof-g25-20261017
+  name: whole-suite-proof-g25-block-20261017
   builder: dockerfile
   dockerfile: Dockerfile
   cache: true
 deploy:
   provider: swarm
   target:
-    serviceName: whole-suite-proof-g25-20261017
+    serviceName: whole-suite-proof-g25-block-20261017
     replicas: 1
-    ingressHost: whole-suite-proof-g25-20261017-2.apps.capricorncorp.com
+    ingressHost: whole-suite-proof-g25-block-20261017-2.apps.capricorncorp.com
     limitCpu: '0.25'
     limitMemory: 128m
     env:
-      ACCEPTANCE_VERSION: g25-all-gates-pass-20261017-v1
+      ACCEPTANCE_VERSION: g25-sast-must-block-20261017-v1
       WHOLE_SUITE_PROOF: g25-prepublication-security
