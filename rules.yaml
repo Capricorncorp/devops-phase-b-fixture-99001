@@ -1,0 +1,6 @@
+rules:
+  - id: g25-no-dynamic-eval
+    languages: [javascript]
+    severity: ERROR
+    message: Dynamic evaluation is forbidden by this fixture policy
+    pattern: eval(...)

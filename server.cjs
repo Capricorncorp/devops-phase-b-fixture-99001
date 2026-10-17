@@ -3,13 +3,14 @@
 const http = require('node:http');
 
 const server = http.createServer((request, response) => {
-  response.writeHead(200, { 'content-type': 'text/plain', 'cache-control': 'no-store' });
-  response.end(request.url === '/health' ? 'ok\n' : JSON.stringify({
-    application: 'Capricorncorp synthetic DevOps acceptance',
-    revision: 'v2',
-    acceptanceVersion: process.env.ACCEPTANCE_VERSION || null,
-    proof: process.env.WHOLE_SUITE_PROOF || null,
-  }) + '\n');
+  response.setHeader('Cache-Control', 'no-store');
+  response.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'; form-action 'none'; base-uri 'none'");
+  response.setHeader('X-Frame-Options', 'DENY');
+  response.setHeader('X-Content-Type-Options', 'nosniff');
+  response.setHeader('Referrer-Policy', 'no-referrer');
+  response.setHeader('Content-Type', request.url === '/health' ? 'text/plain' : 'text/html; charset=utf-8');
+  response.end(request.url === '/health' ? 'ok\n'
+    : '<!doctype html><html lang="en"><head><title>G25 fixture</title></head><body>Capricorncorp synthetic G25 acceptance</body></html>');
 });
 
 server.listen(3000, '0.0.0.0');

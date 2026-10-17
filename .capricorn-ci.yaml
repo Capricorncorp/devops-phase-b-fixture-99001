@@ -1,81 +1,32 @@
 version: 1
-matrix:
-  FLAVOR:
-    - alpha
-    - beta
-library:
-  actions:
-    prepareProof:
-      steps:
-        - name: prepare-declared-output
-          run: >-
-            mkdir -p dist && printf 'Capricorncorp DevOps matrix artifact proof %s\n'
-            "$CI_MATRIX_FLAVOR" > dist/proof.txt
-          timeout: 30
-    inspectProof:
-      steps:
-        - name: verify-reused-action
-          run: >-
-            test "$(cat dist/proof.txt)" = "Capricorncorp DevOps matrix artifact proof
-            $CI_MATRIX_FLAVOR" && tar -tzf dist/proof.tar.gz && printf 'G26_REUSED_ACTION_%s\n'
-            "$CI_MATRIX_FLAVOR"
-          timeout: 30
-    customerProof:
-      steps:
-        - name: customer-proof
-          run: printf '%s\n' 'G26 customer action v2'
-          timeout: 30
-  jobs:
-    makeBundle:
-      steps:
-        - uses: prepareProof
-        - name: package-declared-output
-          run: >-
-            tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -czf dist/proof.tar.gz -C
-            dist proof.txt
-          timeout: 30
-    customerJob:
-      steps:
-        - uses: customerProof
-        - name: template-proof
-          run: printf '%s\n' 'G26 customer job template v2'
-          timeout: 30
-jobs:
-  produce:
-    template: makeBundle
-  inspectFirst:
-    needs:
-      - produce
-    steps:
-      - uses: inspectProof
-  inspectSecond:
-    needs:
-      - inspectFirst
-    steps:
-      - uses: inspectProof
-      - uses: customerProof
-  customerProofJob:
-    template: customerJob
-artifacts:
-  - kind: file
-    name: delivery-proof.txt
-    path: dist/proof.txt
-  - kind: tarball
-    name: delivery-proof.tar.gz
-    path: dist/proof.tar.gz
+steps:
+  - name: fixture-build
+    run: test -f server.cjs && printf 'G25_PUBLICATION_ALLOWED_ONLY_AFTER_ALL_GATES\n'
+    timeout: 30
+securityGates:
+  sast:
+    rules: rules.yaml
+    timeout: 600
+  secrets:
+    timeout: 600
+  dast:
+    image: node@sha256:9bef0ef1e268f60627da9ba7d7605e8831d5b56ad07487d24d1aa386336d1944
+    command: node server.cjs
+    port: 3000
+    timeout: 600
 image:
-  name: whole-suite-proof-g20-20261017
+  name: whole-suite-proof-g25-20261017
   builder: dockerfile
   dockerfile: Dockerfile
   cache: true
 deploy:
   provider: swarm
   target:
-    serviceName: whole-suite-proof-g20-20261017
+    serviceName: whole-suite-proof-g25-20261017
     replicas: 1
-    ingressHost: whole-suite-proof-g20-20261017-2.apps.capricorncorp.com
+    ingressHost: whole-suite-proof-g25-20261017-2.apps.capricorncorp.com
     limitCpu: '0.25'
     limitMemory: 128m
     env:
-      ACCEPTANCE_VERSION: g20-notification-20261017-v1
-      WHOLE_SUITE_PROOF: g20-deploy-outcome
+      ACCEPTANCE_VERSION: g25-all-gates-pass-20261017-v1
+      WHOLE_SUITE_PROOF: g25-prepublication-security
