@@ -1,9 +1,16 @@
 {
   "version": 1,
-  "matrix": { "lane": ["A", "B"] },
-  "steps": [{
-    "name": "G04 deliberate RED and bounded descendant cleanup",
-    "timeout": 10,
-    "run": "set -eu\n: \"${G04_PROOF_TOKEN:?parent must bind unique proof token}\"\nsid=$(/bin/ps -p $$ -o sid= | tr -d ' ')\nsh -c 'trap \"\" TERM; sleep 20' &\nchild=$!\nprintf 'G04_CHILD token=%s lane=%s pid=%s child=%s sid=%s pwd=%s home=%s tmp=%s cache=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\" \"$$\" \"$child\" \"$sid\" \"$PWD\" \"$HOME\" \"$TMPDIR\" \"$XDG_CACHE_HOME\"\nif [ \"$CI_MATRIX_lane\" = A ]; then sleep 1; exit 7; fi\nsleep 2\nprintf 'G04_PEER_DONE token=%s lane=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\""
-  }]
+  "matrix": {
+    "lane": [
+      "A",
+      "B"
+    ]
+  },
+  "steps": [
+    {
+      "name": "G04 deliberate RED and bounded descendant cleanup",
+      "timeout": 10,
+      "run": "set -eu\nG04_PROOF_TOKEN=\"g04-ui-$(cat /proc/sys/kernel/random/boot_id)\"\nexport G04_PROOF_TOKEN\n: \"${G04_PROOF_TOKEN:?parent must bind unique proof token}\"\nsid=$(/bin/ps -p $$ -o sid= | tr -d ' ')\nsh -c 'trap \"\" TERM; sleep 20' &\nchild=$!\nprintf 'G04_CHILD token=%s lane=%s pid=%s child=%s sid=%s pwd=%s home=%s tmp=%s cache=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\" \"$$\" \"$child\" \"$sid\" \"$PWD\" \"$HOME\" \"$TMPDIR\" \"$XDG_CACHE_HOME\"\nif [ \"$CI_MATRIX_lane\" = A ]; then sleep 1; exit 7; fi\nsleep 2\nprintf 'G04_PEER_DONE token=%s lane=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\""
+    }
+  ]
 }
