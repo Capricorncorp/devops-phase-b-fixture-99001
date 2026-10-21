@@ -1,9 +1,16 @@
 {
   "version": 1,
-  "matrix": { "lane": ["A", "B"] },
-  "steps": [{
-    "name": "G04 bounded overlap and private paths",
-    "timeout": 10,
-    "run": "set -eu\nkey=${G04_PROOF_TOKEN:?parent must bind unique proof token}-$CI_MATRIX_lane\nfor dir in \"$HOME\" \"$TMPDIR\" \"$XDG_CACHE_HOME\"; do test ! -e \"$dir/g04-owner\"; printf '%s' \"$key\" > \"$dir/g04-owner\"; done\nsid=$(/bin/ps -p $$ -o sid= | tr -d ' ')\nprintf 'G04_PATHS token=%s lane=%s pid=%s sid=%s pwd=%s home=%s tmp=%s cache=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\" \"$$\" \"$sid\" \"$PWD\" \"$HOME\" \"$TMPDIR\" \"$XDG_CACHE_HOME\"\nprintf 'G04_BEGIN token=%s lane=%s uptime=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\" \"$(awk '{print $1}' /proc/uptime)\"\nsleep 3\nfor dir in \"$HOME\" \"$TMPDIR\" \"$XDG_CACHE_HOME\"; do test \"$(cat \"$dir/g04-owner\")\" = \"$key\"; done\nprintf 'G04_END token=%s lane=%s uptime=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\" \"$(awk '{print $1}' /proc/uptime)\""
-  }]
+  "matrix": {
+    "lane": [
+      "A",
+      "B"
+    ]
+  },
+  "steps": [
+    {
+      "name": "G04 bounded overlap and private paths",
+      "timeout": 10,
+      "run": "set -eu\nG04_PROOF_TOKEN=\"g04-ui-$(cat /proc/sys/kernel/random/boot_id)\"\nexport G04_PROOF_TOKEN\nkey=${G04_PROOF_TOKEN:?parent must bind unique proof token}-$CI_MATRIX_lane\nfor dir in \"$HOME\" \"$TMPDIR\" \"$XDG_CACHE_HOME\"; do test ! -e \"$dir/g04-owner\"; printf '%s' \"$key\" > \"$dir/g04-owner\"; done\nsid=$(/bin/ps -p $$ -o sid= | tr -d ' ')\nprintf 'G04_PATHS token=%s lane=%s pid=%s sid=%s pwd=%s home=%s tmp=%s cache=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\" \"$$\" \"$sid\" \"$PWD\" \"$HOME\" \"$TMPDIR\" \"$XDG_CACHE_HOME\"\nprintf 'G04_BEGIN token=%s lane=%s uptime=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\" \"$(awk '{print $1}' /proc/uptime)\"\nsleep 3\nfor dir in \"$HOME\" \"$TMPDIR\" \"$XDG_CACHE_HOME\"; do test \"$(cat \"$dir/g04-owner\")\" = \"$key\"; done\nprintf 'G04_END token=%s lane=%s uptime=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\" \"$(awk '{print $1}' /proc/uptime)\""
+    }
+  ]
 }
