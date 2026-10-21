@@ -1,19 +1,39 @@
 {
   "version": 1,
   "steps": [
-    { "name": "fixture-context", "run": "test -s server.cjs && test -s Dockerfile", "timeout": 60 },
-    { "name": "owned-retry-gate", "run": "git ls-remote --exit-code origin refs/tags/whole-suite-retry-ready-20261014", "timeout": 30 }
+    {
+      "name": "Check disposable delivery proof source",
+      "run": "node --check server.js",
+      "timeout": 30
+    }
   ],
-  "image": { "name": "whole-suite-proof", "builder": "dockerfile", "dockerfile": "Dockerfile", "cache": true },
+  "image": {
+    "name": "delivery-proof-20261021",
+    "builder": "dockerfile",
+    "dockerfile": "Dockerfile",
+    "context": ".",
+    "cache": true
+  },
   "deploy": {
     "provider": "swarm",
     "target": {
-      "serviceName": "whole-suite-proof",
-      "replicas": 1,
-      "ingressHost": "whole-suite-proof-2.apps.capricorncorp.com",
-      "limitCpu": "0.5",
+      "serviceName": "delivery-proof-20261021",
+      "replicas": 3,
+      "ingressHost": "auto",
+      "limitCpu": "0.1",
       "limitMemory": "128M",
-      "env": { "PORT": "3000", "ACCEPTANCE_VERSION": "20261014-v1" }
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": "3000",
+        "DELIVERY_PROOF_REVISION": "g24-20261021-blue-green-failure",
+        "DELIVERY_PROOF_HEALTH": "after-traffic"
+      },
+      "delivery": {
+        "strategy": "blue-green",
+        "batchSize": 3,
+        "monitorSeconds": 60,
+        "healthPath": "/health"
+      }
     }
   }
 }
