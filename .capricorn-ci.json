@@ -1,19 +1,9 @@
 {
   "version": 1,
-  "steps": [
-    { "name": "fixture-context", "run": "test -s server.cjs && test -s Dockerfile", "timeout": 60 },
-    { "name": "owned-retry-gate", "run": "git ls-remote --exit-code origin refs/tags/whole-suite-retry-ready-20261014", "timeout": 30 }
-  ],
-  "image": { "name": "whole-suite-proof", "builder": "dockerfile", "dockerfile": "Dockerfile", "cache": true },
-  "deploy": {
-    "provider": "swarm",
-    "target": {
-      "serviceName": "whole-suite-proof",
-      "replicas": 1,
-      "ingressHost": "whole-suite-proof-2.apps.capricorncorp.com",
-      "limitCpu": "0.5",
-      "limitMemory": "128M",
-      "env": { "PORT": "3000", "ACCEPTANCE_VERSION": "20261014-v1" }
-    }
-  }
+  "matrix": { "lane": ["A", "B"] },
+  "steps": [{
+    "name": "G04 parent-authorized native active abort only",
+    "timeout": 25,
+    "run": "set -eu\n: \"${G04_PROOF_TOKEN:?parent must bind unique proof token}\"\nsid=$(/bin/ps -p $$ -o sid= | tr -d ' ')\nsh -c 'trap \"\" TERM; sleep 20' &\nchild=$!\nprintf 'G04_BEGIN token=%s lane=%s pid=%s child=%s sid=%s pwd=%s home=%s tmp=%s cache=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\" \"$$\" \"$child\" \"$sid\" \"$PWD\" \"$HOME\" \"$TMPDIR\" \"$XDG_CACHE_HOME\"\nwait \"$child\"\nprintf 'G04_ABORT_NOT_OBSERVED token=%s lane=%s\\n' \"$G04_PROOF_TOKEN\" \"$CI_MATRIX_lane\""
+  }]
 }
