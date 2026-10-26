@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "steps": [
+    {
+      "name": "G10 BYO isolated runner proof",
+      "run": "node verify.cjs",
+      "timeout": 30
+    }
+  ]
+}
