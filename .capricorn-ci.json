@@ -12,7 +12,7 @@
     "builder": "dockerfile",
     "dockerfile": "Dockerfile",
     "context": ".",
-    "cache": true
+    "cache": false
   },
   "deploy": {
     "provider": "swarm",
@@ -25,7 +25,7 @@
       "env": {
         "NODE_ENV": "production",
         "PORT": "3000",
-        "DELIVERY_PROOF_REVISION": "g24-20261021-blue-green-success",
+        "DELIVERY_PROOF_REVISION": "g24-20261029-rollback-current",
         "DELIVERY_PROOF_HEALTH": "ok"
       },
       "delivery": {
