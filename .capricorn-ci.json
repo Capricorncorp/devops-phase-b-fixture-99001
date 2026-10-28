@@ -12,7 +12,7 @@
     "builder": "dockerfile",
     "dockerfile": "Dockerfile",
     "context": ".",
-    "cache": false
+    "cache": true
   },
   "deploy": {
     "provider": "swarm",
